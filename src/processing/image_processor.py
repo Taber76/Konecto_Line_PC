@@ -24,7 +24,6 @@ class ImageCaptureManager:
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.proccess_frame)
-        self.timer.start(config['processing']['interval'])
 
     def proccess_frame(self):  # Process current frame to detect objects
         self.current_frame = self.camera.get_frame()
@@ -45,7 +44,7 @@ class ImageCaptureManager:
                 if previous_box[0] < self.checkpoint_line_x and box[0] >= self.checkpoint_line_x:
                     x, y = int((box[0]+box[2])/2), int((box[1]+box[3])/2)
                     self.last_detection = self.zoom_image(
-                        self.current_frame, x, y, 2.5)
+                        self.current_frame, x, y, 1.5)
                     self.detected_units += 1
             self.previous_tracks[track_id] = box
 
@@ -72,8 +71,8 @@ class ImageCaptureManager:
         # Draw checkpoint line and number of detections
         cv2.line(self.current_frame, (self.checkpoint_line_x, 10),
                  (self.checkpoint_line_x, 230), (0, 255, 0), 2)
-        cv2.putText(self.current_frame, f'Detections: {
-                    self.detected_units}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
+       # cv2.putText(self.current_frame, f'Detections: {
+       #             self.detected_units}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
 
         height, width, channel = self.current_frame.shape
         bytes_per_line = 3 * width
@@ -85,7 +84,7 @@ class ImageCaptureManager:
             bytes_per_line = 3 * width
             q_image = QImage(self.last_detection.data, width,
                              height, bytes_per_line, QImage.Format_RGB888)
-        return q_video, q_image
+        return q_video, q_image, self.detected_units
 
     def zoom_image(self, frame, x_center, y_center, zoom_factor):
         frame_height, frame_width = frame.shape[:2]
@@ -99,6 +98,9 @@ class ImageCaptureManager:
         zoomed_image = cv2.resize(
             cropped_frame, (frame_width, frame_height), interpolation=cv2.INTER_LINEAR)
         return zoomed_image
+
+    def start(self):
+        self.timer.start(config['processing']['interval'])
 
     def stop(self):
         self.timer.stop()
