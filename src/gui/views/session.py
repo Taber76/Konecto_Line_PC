@@ -4,9 +4,11 @@ from PySide6.QtGui import QPixmap
 from sympy import Q
 
 from processing.image_processor import ImageCaptureManager
+from db.sessions.dao import session_register, session_update
 from gui.components.info_widget import InfoWidget
-from config.config import load_config
+from config.config import load_config, load_styles
 config = load_config()
+style = load_styles()
 
 
 class Session_View(QWidget):
@@ -63,19 +65,19 @@ class Session_View(QWidget):
         # BUTTONS WIDGETS --------------------------------------------------------
         # start button
         start_button = QPushButton("Start")
-        start_button.setStyleSheet(config['style']['button']['medium'])
+        start_button.setStyleSheet(style['button']['medium'])
         start_button.setFixedHeight(100)
         start_button.clicked.connect(self.start)
 
         # pause button
         pause_button = QPushButton("Pause")
-        pause_button.setStyleSheet(config['style']['button']['medium'])
+        pause_button.setStyleSheet(style['button']['medium'])
         pause_button.setFixedHeight(100)
         pause_button.clicked.connect(self.pause)
 
         # finish button
         stop_button = QPushButton("Finish")
-        stop_button.setStyleSheet(config['style']['button']['medium'])
+        stop_button.setStyleSheet(style['button']['medium'])
         stop_button.setFixedHeight(100)
         stop_button.clicked.connect(self.finish)
 
@@ -115,6 +117,10 @@ class Session_View(QWidget):
         self.start_frame.update_value(QDateTime.currentDateTime().toString(
             "HH:mm"
         ))
+        session_register(
+            config['line_id'], self.main_window.batch_id, QDateTime.currentDateTime(
+            ).toString("yyyy-MM-dd HH:mm:ss"),
+        )
         self.quality_frame.update_value("100%")
 
     def pause(self):

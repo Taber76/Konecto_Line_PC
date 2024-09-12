@@ -1,8 +1,8 @@
 from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget
 from PySide6.QtCore import Qt
 
-from config.config import load_config
-config = load_config()
+from config.config import load_styles
+style = load_styles()
 
 
 class InfoWidget(QWidget):
@@ -13,11 +13,11 @@ class InfoWidget(QWidget):
     def init_ui(self, label_text, value_text, height, size):
         label = QLabel(label_text)
         label.setAlignment(Qt.AlignCenter)
-        label.setStyleSheet(config['style']['label'][size])
+        label.setStyleSheet(style['label'][size])
 
         self.value = QLabel(value_text)
         self.value.setAlignment(Qt.AlignCenter)
-        self.value.setStyleSheet(config['style']['label'][size])
+        self.value.setStyleSheet(style['label'][size])
 
         frame = QVBoxLayout()
         frame.addWidget(label)

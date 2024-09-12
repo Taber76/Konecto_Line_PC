@@ -1,8 +1,9 @@
-from peewee import Model, CharField, IntegerField, DateTimeField
+from peewee import Model, CharField, IntegerField, DateTimeField, UUIDField
 from db.conection import DbConnection
 
 
 class Batch(Model):
+    id = UUIDField(primary_key=True)
     code = CharField(max_length=255)
     product_id = CharField(max_length=255)
     product_name = CharField(max_length=255)
@@ -13,5 +14,5 @@ class Batch(Model):
 
     class Meta:
         database = DbConnection().db
-        table_name = 'batchs_detail'
+        table_name = 'batchs_detail'  # 'batches_detail' is a view
         primary_key = False

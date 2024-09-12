@@ -1,8 +1,9 @@
 from PySide6.QtWidgets import QLabel, QWidget, QVBoxLayout, QHBoxLayout, QPushButton
 from PySide6.QtCore import Qt, QDateTime, QTimer
 
-from config.config import load_config
+from config.config import load_config, load_styles
 config = load_config()
+style = load_styles()
 
 
 class HeaderWidget(QWidget):
@@ -16,11 +17,11 @@ class HeaderWidget(QWidget):
         main_layout = QVBoxLayout()
         self.setLayout(main_layout)
         self.setStyleSheet(
-            f"background-color: {config['style']
+            f"background-color: {style
                                  ['header']['background_color']};"
-            f"font-family: {config['style']['header']['font']};"
-            f"font-weight: {config['style']['header']['font-weight']};"
-            f"color: {config['style']['header']['text_color']};"
+            f"font-family: {style['header']['font']};"
+            f"font-weight: {style['header']['font-weight']};"
+            f"color: {style['header']['text_color']};"
         )
         self.setFixedWidth(config['screen']['width'])
         self.setFixedHeight(int(config['screen']['height'] * 0.08))
@@ -34,8 +35,8 @@ class HeaderWidget(QWidget):
         self.date_time_label = QLabel(self)
         self.update_date_time()
         self.date_time_label.setStyleSheet(
-            f"padding: {config['style']['header']['padding']};"
-            f"font-size: {int(config['style']['header']['font-size']*1)}px;"
+            f"padding: {style['header']['padding']};"
+            f"font-size: {int(style['header']['font-size']*1)}px;"
         )
         self.date_time_label.setFixedWidth(
             int(config['screen']['width'] * 0.15))
@@ -48,8 +49,8 @@ class HeaderWidget(QWidget):
         self.product_label = QLabel(f"{self.main_window.product}{
                                     self.main_window.batch}")
         self.product_label.setStyleSheet(
-            f"padding: {config['style']['header']['padding']};"
-            f"font-size: {int(config['style']['header']['font-size']*1.5)}px;"
+            f"padding: {style['header']['padding']};"
+            f"font-size: {int(style['header']['font-size']*1.5)}px;"
         )
         self.product_label.setFixedWidth(int(config['screen']['width'] * 0.7))
         self.product_label.setFixedHeight(
@@ -60,8 +61,8 @@ class HeaderWidget(QWidget):
         # Logged user
         self.logged_user = QLabel(f"{self.main_window.user['fullname']}")
         self.logged_user.setStyleSheet(
-            f"padding: {config['style']['header']['padding']};"
-            f"font-size: {int(config['style']['header']['font-size']*0.7)}px;"
+            f"padding: {style['header']['padding']};"
+            f"font-size: {int(style['header']['font-size']*0.7)}px;"
         )
         self.logged_user.setFixedWidth(int(config['screen']['width'] * 0.1))
         self.logged_user.setFixedHeight(int(config['screen']['height'] * 0.05))
@@ -70,7 +71,7 @@ class HeaderWidget(QWidget):
 
         # Button logout
         self.button = QPushButton("LOGOUT")
-        self.button.setStyleSheet(f"{config['style']['button']['small']}")
+        self.button.setStyleSheet(f"{style['button']['small']}")
         self.button.clicked.connect(self.logout)
         self.button.setFixedWidth(int(config['screen']['width'] * 0.1))
         self.button.setFixedHeight(int(config['screen']['height'] * 0.05))

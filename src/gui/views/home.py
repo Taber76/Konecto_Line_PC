@@ -3,8 +3,8 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QStandardItemModel, QStandardItem
 
 from db.batches.dao import get_all
-from config.config import load_config
-config = load_config()
+from config.config import load_styles
+style = load_styles()
 
 
 class Home_View(QWidget):
@@ -19,14 +19,14 @@ class Home_View(QWidget):
         # title
         self.title = QLabel("Batches")
         self.title.setStyleSheet(
-            f"font-size: {int(config['style']['header']['font-size']*1.5)}px;"
+            f"font-size: {int(style['header']['font-size']*1.5)}px;"
         )
         self.title.setAlignment(Qt.AlignCenter)
 
         # table
         self.model = QStandardItemModel()
         self.model.setHorizontalHeaderLabels(
-            ["Code", "Product ID", "Product", "Date", "Total Produced", "Total Defects"])
+            ["Code", "Product ID", "Product", "Date", "Total Produced", "Total Defects", "Batch ID"])
         self.populate_table(self.items)
 
         self.table_view = QTableView()
@@ -34,12 +34,13 @@ class Home_View(QWidget):
         self.table_view.setSelectionBehavior(QTableView.SelectRows)
         self.table_view.clicked.connect(self.row_clicked)
 
-        self.table_view.hideColumn(1)
         self.table_view.setColumnWidth(0, 125)
+        self.table_view.hideColumn(1)
         self.table_view.setColumnWidth(2, 295)
         self.table_view.setColumnWidth(3, 185)
         self.table_view.setColumnWidth(4, 185)
         self.table_view.setColumnWidth(5, 185)
+        self.table_view.hideColumn(6)
        # N self.table_view.resizeColumnsToContents()
         self.table_view.setStyleSheet("""
             QTableView {
@@ -73,10 +74,10 @@ class Home_View(QWidget):
         lay_horizontal_layout.addLayout(lay_vertical_layout)
         self.setLayout(lay_horizontal_layout)
         self.setStyleSheet(
-            f"font-family: {config['style']['body']['font']};"
-            f"font-size: {int(config['style']['body']['font-size']*1)}px;"
-            f"font-weight: {config['style']['body']['font-weight']};"
-            f"color: {config['style']['body']['text_color']};"
+            f"font-family: {style['body']['font']};"
+            f"font-size: {int(style['body']['font-size']*1)}px;"
+            f"font-weight: {style['body']['font-weight']};"
+            f"color: {style['body']['text_color']};"
         )
 
     def populate_table(self, items):
@@ -88,6 +89,7 @@ class Home_View(QWidget):
                 QStandardItem(str(item.updated_at)),
                 QStandardItem(str(item.total_produced)),
                 QStandardItem(str(item.total_defects)),
+                QStandardItem(str(item.id)),
             ]
             self.model.appendRow(row)
 
@@ -96,6 +98,8 @@ class Home_View(QWidget):
                     for col in range(self.model.columnCount())]
         self.main_window.product = row_data[2]
         self.main_window.batch = f" / Batch: {row_data[0]}"
+        self.main_window.batch_id = row_data[6]
+        print(row_data)
 
         self.dialog = QDialog(self)
         self.dialog.setWindowTitle(f"Loading")  # {row_data[2]}")

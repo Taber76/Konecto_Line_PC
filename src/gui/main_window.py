@@ -1,4 +1,5 @@
 from PySide6.QtWidgets import QMainWindow, QStackedWidget, QWidget, QVBoxLayout
+from matplotlib import style
 
 from .components.header import HeaderWidget
 from .components.footer import FooterWidget
@@ -6,8 +7,9 @@ from .views.login import Login_View
 from .views.home import Home_View
 from .views.session import Session_View
 
-from config.config import load_config
+from config.config import load_config, load_styles
 config = load_config()
+style = load_styles()
 
 
 class MainWindow(QMainWindow):
@@ -16,12 +18,13 @@ class MainWindow(QMainWindow):
         self.setWindowTitle('KONECTO')
         self.resize(config['screen']['width'], config['screen']['height'])
         self.setStyleSheet(
-            f"background-color: {config['style']['background_color']};"
+            f"background-color: {style['background_color']};"
         )
 
-        # showed info
+        # info
         self.product = ""
         self.batch = ""
+        self.batch_id = None
         self.user = {"id": None, "fullname": None, "role": None}
 
         central_widget = QWidget()

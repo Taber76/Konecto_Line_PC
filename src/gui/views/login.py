@@ -2,8 +2,9 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QL
 from PySide6.QtCore import Qt
 
 from db.users.dao import authenticate
-from config.config import load_config
+from config.config import load_config, load_styles
 config = load_config()
+style = load_styles()
 
 
 class Login_View(QWidget):
@@ -33,7 +34,7 @@ class Login_View(QWidget):
         # login button
         wid_login_button = QPushButton("LOGIN")
         wid_login_button.setStyleSheet(
-            f"{config['style']['button']['small']}")
+            f"{style['button']['small']}")
         wid_login_button.clicked.connect(self.handle_login)
         wid_login_button.setFixedWidth(int(config['screen']['width'] * 0.1))
         wid_login_button.setFixedHeight(
@@ -70,10 +71,10 @@ class Login_View(QWidget):
         lay_horizontal_layout.addLayout(lay_vertical_layout)
         self.setLayout(lay_horizontal_layout)
         self.setStyleSheet(
-            f"font-family: {config['style']['body']['font']};"
-            f"font-size: {int(config['style']['body']['font-size']*1)}px;"
-            f"font-weight: {config['style']['body']['font-weight']};"
-            f"color: {config['style']['body']['text_color']};"
+            f"font-family: {style['body']['font']};"
+            f"font-size: {int(style['body']['font-size']*1)}px;"
+            f"font-weight: {style['body']['font-weight']};"
+            f"color: {style['body']['text_color']};"
         )
 
     def handle_login(self):

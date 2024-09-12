@@ -1,6 +1,7 @@
 import json
 
 DEFAULT_CONFIG = {
+    "line_id": "1502d422-4459-4cf8-8d99-3777fad1fe80",
     "screen": {
         "width": 1024,
         "height": 768
@@ -60,6 +61,47 @@ DEFAULT_CONFIG = {
     }
 }
 
+STYLES = {
+    "background_color": "white",
+    "button": {
+        "small": "background-color: #007BFF; color: white; border-radius: 5px; padding: 1px; font-size: 16px; width: 100px; height: 30px;",
+        "medium": "background-color: #007BFF; color: white; border-radius: 5px; padding: 1px; font-size: 50px; width: 250px; height: 60px;",
+        "large": "background-color: #007BFF; color: white; border-radius: 5px; padding: 1px; font-size: 80px; width: 500px; height: 120px;",
+    },
+    "label": {
+        "small": "background-color: white; color: black; border-radius: 5px; padding: 1px; font-size: 16px; width: 100px; height: 20px;",
+        "medium": "background-color: white; color: black; border-radius: 5px; padding: 1px; font-size: 32px; width: 200px; height: 40px;",
+        "large": "background-color: white; color: black; border-radius: 5px; padding: 1px; font-size: 64px; width: 400px; height: 80px;",
+    },
+    "header": {
+        "background_color": "white",
+        "text_color": "black",
+        "font": "Arial",
+        "font-size": 18,
+        "font-weight": "bold",
+        "padding": "0px",
+        "color": "white"
+    },
+    "footer": {
+        "background_color": "white",
+        "text_color": "black",
+        "font": "Arial",
+        "font-size": 12,
+        "font-weight": "bold",
+        "padding": "0px",
+        "color": "white"
+    },
+    "body": {
+        "background_color": "white",
+        "text_color": "black",
+        "font": "Arial",
+        "font-size": 15,
+        "font-weight": "bold",
+        "padding": "0px",
+        "color": "white"
+    }
+}
+
 
 def load_config():
     try:
@@ -68,3 +110,7 @@ def load_config():
     except FileNotFoundError:
         config = DEFAULT_CONFIG
     return config
+
+
+def load_styles():
+    return STYLES
