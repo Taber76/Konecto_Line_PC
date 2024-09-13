@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 from PySide6.QtGui import QImage
-from PySide6.QtCore import QTimer
+from PySide6.QtCore import QTimer, QDateTime
 
 from processing.yolo_processor import YOLOProcessor
 from capture.camera import Camera
@@ -16,11 +16,12 @@ class ImageCaptureManager:
         self.camera = Camera()
         self.processor = YOLOProcessor()
         self.checkpoint_line_x = 160
-        self.detected_units = 0
         self.tracks = []
         self.previous_tracks = {}
         self.current_frame = None
         self.last_detection = None
+        self.quantity = 0
+        self.defects = 0
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.proccess_frame)
@@ -45,8 +46,17 @@ class ImageCaptureManager:
                     x, y = int((box[0]+box[2])/2), int((box[1]+box[3])/2)
                     self.last_detection = self.zoom_image(
                         self.current_frame, x, y, 1.5)
-                    self.detected_units += 1
+                    if track.det_class != 'alerfast':
+                        self.defects += 1
+                    self.quantity += 1
             self.previous_tracks[track_id] = box
+
+    def reset_counts(self):
+        self.quantity = 0
+        self.defects = 0
+
+    def get_counts(self):
+        return self.quantity, self.defects
 
     def update_images(self):  # Update images only for show on screen
         if self.current_frame is None:
@@ -68,11 +78,9 @@ class ImageCaptureManager:
             cv2.putText(self.current_frame, f'{class_name}', (int(
                 ltrb[0]), int(ltrb[1]) - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
 
-        # Draw checkpoint line and number of detections
+        # Draw checkpoint line
         cv2.line(self.current_frame, (self.checkpoint_line_x, 10),
                  (self.checkpoint_line_x, 230), (0, 255, 0), 2)
-       # cv2.putText(self.current_frame, f'Detections: {
-       #             self.detected_units}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
 
         height, width, channel = self.current_frame.shape
         bytes_per_line = 3 * width
@@ -84,7 +92,7 @@ class ImageCaptureManager:
             bytes_per_line = 3 * width
             q_image = QImage(self.last_detection.data, width,
                              height, bytes_per_line, QImage.Format_RGB888)
-        return q_video, q_image, self.detected_units
+        return q_video, q_image, self.quantity, self.defects
 
     def zoom_image(self, frame, x_center, y_center, zoom_factor):
         frame_height, frame_width = frame.shape[:2]

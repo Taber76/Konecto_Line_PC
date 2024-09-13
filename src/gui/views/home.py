@@ -99,7 +99,6 @@ class Home_View(QWidget):
         self.main_window.product = row_data[2]
         self.main_window.batch = f" / Batch: {row_data[0]}"
         self.main_window.batch_id = row_data[6]
-        print(row_data)
 
         self.dialog = QDialog(self)
         self.dialog.setWindowTitle(f"Loading")  # {row_data[2]}")

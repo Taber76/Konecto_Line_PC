@@ -7,7 +7,14 @@ from db.sessions.model import Session
 def session_register(line_id, batch_id, start_time):
     try:
         with DbConnection().db.connection_context():
-            return Session.create(line_id=line_id, batch_id=batch_id, start_time=start_time, quantity=0, defects=0)
+            return Session.create(
+                line_id=line_id,
+                batch_id=batch_id,
+                start_time=start_time,
+                end_time=start_time,
+                quantity=0,
+                defects=0
+            )
     except Exception as e:
         print(f"An error occurred: {e}")
         return None
