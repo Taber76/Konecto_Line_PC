@@ -36,10 +36,10 @@ class Home_View(QWidget):
 
         self.table_view.setColumnWidth(0, 125)
         self.table_view.hideColumn(1)
-        self.table_view.setColumnWidth(2, 295)
-        self.table_view.setColumnWidth(3, 185)
-        self.table_view.setColumnWidth(4, 185)
-        self.table_view.setColumnWidth(5, 185)
+        self.table_view.setColumnWidth(2, 290)
+        self.table_view.setColumnWidth(3, 190)
+        self.table_view.setColumnWidth(4, 180)
+        self.table_view.setColumnWidth(5, 180)
         self.table_view.hideColumn(6)
        # N self.table_view.resizeColumnsToContents()
         self.table_view.setStyleSheet("""

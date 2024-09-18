@@ -15,61 +15,56 @@ class Login_View(QWidget):
 
     def init_ui(self):
 
-        # Widgets -------------------------
-        # username
-        wid_username_label = QLabel("Username:")
-        wid_username_label.setFixedWidth(int(config['screen']['width'] * 0.1))
-        self.wid_username_input = QLineEdit()
-        self.wid_username_input.setFixedWidth(
+        # USERNAME --------------------------------------------------------------
+        username_label_widget = QLabel("Username:")
+        username_label_widget.setFixedWidth(
+            int(config['screen']['width'] * 0.1))
+        self.username_input_widget = QLineEdit()
+        self.username_input_widget.setFixedWidth(
             int(config['screen']['width'] * 0.2))
+        username_layout = QHBoxLayout()
+        username_layout.setAlignment(Qt.AlignCenter)
+        username_layout.addWidget(username_label_widget)
+        username_layout.addWidget(self.username_input_widget)
 
-        # password
-        wid_password_label = QLabel("Password:")
-        wid_password_label.setFixedWidth(int(config['screen']['width'] * 0.1))
-        self.wid_password_input = QLineEdit()
-        self.wid_password_input.setFixedWidth(
+        # PASSWORD --------------------------------------------------------------
+        password_label_widget = QLabel("Password:")
+        password_label_widget.setFixedWidth(
+            int(config['screen']['width'] * 0.1))
+        self.password_input_widget = QLineEdit()
+        self.password_input_widget.setFixedWidth(
             int(config['screen']['width'] * 0.2))
-        self.wid_password_input.setEchoMode(QLineEdit.Password)
+        self.password_input_widget.setEchoMode(QLineEdit.Password)
+        password_layout = QHBoxLayout()
+        password_layout.setAlignment(Qt.AlignCenter)
+        password_layout.addWidget(password_label_widget)
+        password_layout.addWidget(self.password_input_widget)
 
-        # login button
-        wid_login_button = QPushButton("LOGIN")
-        wid_login_button.setStyleSheet(
+        # LOGIN BUTTON ------------------------------------------------------------
+        login_button_widget = QPushButton("LOGIN")
+        login_button_widget.setStyleSheet(
             f"{style['button']['small']}")
-        wid_login_button.clicked.connect(self.handle_login)
-        wid_login_button.setFixedWidth(int(config['screen']['width'] * 0.1))
-        wid_login_button.setFixedHeight(
+        login_button_widget.clicked.connect(self.handle_login)
+        login_button_widget.setFixedWidth(int(config['screen']['width'] * 0.1))
+        login_button_widget.setFixedHeight(
             int(config['screen']['height'] * 0.05))
+        button_layout = QHBoxLayout()
+        button_layout.setAlignment(Qt.AlignCenter)
+        button_layout.addWidget(login_button_widget)
 
-        # Layouts -------------------------
-        # username layout
-        lay_username = QHBoxLayout()
-        lay_username.setAlignment(Qt.AlignCenter)
-        lay_username.addWidget(wid_username_label)
-        lay_username.addWidget(self.wid_username_input)
-
-        # password layout
-        lay_password = QHBoxLayout()
-        lay_password.setAlignment(Qt.AlignCenter)
-        lay_password.addWidget(wid_password_label)
-        lay_password.addWidget(self.wid_password_input)
-
-        # button layout
-        lay_button = QHBoxLayout()
-        lay_button.setAlignment(Qt.AlignCenter)
-        lay_button.addWidget(wid_login_button)
-
+        # MAIN LAYOUT ------------------------------------------------------------
         # main vertical layout
-        lay_vertical_layout = QVBoxLayout()
-        lay_vertical_layout.setAlignment(Qt.AlignCenter)
-        lay_vertical_layout.addLayout(lay_username)
-        lay_vertical_layout.addLayout(lay_password)
-        lay_vertical_layout.addLayout(lay_button)
+        vertical_layout = QVBoxLayout()
+        vertical_layout.setAlignment(Qt.AlignCenter)
+        vertical_layout.addLayout(username_layout)
+        vertical_layout.addLayout(password_layout)
+        vertical_layout.addLayout(button_layout)
 
         # main horizontal layout
-        lay_horizontal_layout = QHBoxLayout()
-        lay_horizontal_layout.setAlignment(Qt.AlignCenter)
-        lay_horizontal_layout.addLayout(lay_vertical_layout)
-        self.setLayout(lay_horizontal_layout)
+        main_horizontal_layout = QHBoxLayout()
+        main_horizontal_layout.setAlignment(Qt.AlignCenter)
+        main_horizontal_layout.addLayout(vertical_layout)
+        self.setLayout(main_horizontal_layout)
         self.setStyleSheet(
             f"font-family: {style['body']['font']};"
             f"font-size: {int(style['body']['font-size']*1)}px;"
@@ -79,10 +74,10 @@ class Login_View(QWidget):
 
     def handle_login(self):
         success, user_data = authenticate(
-            self.wid_username_input.text(), self.wid_password_input.text())
+            self.username_input_widget.text(), self.password_input_widget.text())
         if success:
-            self.wid_username_input.setText("")
-            self.wid_password_input.setText("")
+            self.username_input_widget.setText("")
+            self.password_input_widget.setText("")
             self.main_window.user['fullname'] = user_data.fullname
             self.main_window.change_view("home")
         else:

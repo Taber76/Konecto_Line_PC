@@ -1,8 +1,6 @@
-from PySide6.QtCore import QThread, Signal
-from PySide6.QtWidgets import QFrame, QLabel, QWidget, QVBoxLayout, QHBoxLayout, QPushButton
+from PySide6.QtWidgets import QLabel, QWidget, QVBoxLayout, QHBoxLayout, QPushButton
 from PySide6.QtCore import Qt, QTimer, QDateTime, QRunnable, QThreadPool
 from PySide6.QtGui import QPixmap
-from sympy import Q
 
 from processing.image_processor import ImageCaptureManager
 from db.sessions.dao import session_register, session_update
@@ -33,27 +31,30 @@ class Session_View(QWidget):
         # Timer to update session and register counts
         self.timer_db = QTimer()
         self.timer_db.timeout.connect(self.update_db)
+        self.last_count = 0
+        self.total_last_count = 0
 
     def init_ui(self):
-        # INFO WIDGETS ------------------------------------------------------------
-        # start time
+
+        # INFO ------------------------------------------------------------------
         self.start_frame = InfoWidget(
             "Start time", "--:--", int(config['screen']['height'] * 0.15), 'medium')
-
-        # quantity
         self.quantity_frame = InfoWidget(
             "Quantity", "--", int(config['screen']['height'] * 0.15), 'medium')
-
-        # defects
         self.defects_frame = InfoWidget(
             "Defects", "--", int(config['screen']['height'] * 0.15), 'medium')
-
-        # quality
         self.quality_frame = InfoWidget(
             "Quality", "--%", int(config['screen']['height'] * 0.15), 'medium')
+        info_layout = QHBoxLayout()
+        info_layout.setContentsMargins(0, 0, 0, 0)
+        info_layout.setAlignment(Qt.AlignCenter)
+        info_layout.setSpacing(30)
+        info_layout.addWidget(self.start_frame)
+        info_layout.addWidget(self.quantity_frame)
+        info_layout.addWidget(self.defects_frame)
+        info_layout.addWidget(self.quality_frame)
 
-        # IMAGE WIDGETS -----------------------------------------------------------
-        # live video
+        # VIDEO -----------------------------------------------------------------
         live_video_label = QLabel("Live video")
         self.live_video = QLabel("Live video")
         self.live_video.setFixedSize(480, 360)
@@ -65,7 +66,6 @@ class Session_View(QWidget):
         live_video_frame.addWidget(live_video_label)
         live_video_frame.addWidget(self.live_video)
 
-        # last image
         last_image_label = QLabel("Last image")
         self.last_image = QLabel("Last image")
         self.last_image.setFixedSize(480, 360)
@@ -77,40 +77,27 @@ class Session_View(QWidget):
         last_image_frame.addWidget(last_image_label)
         last_image_frame.addWidget(self.last_image)
 
-        # BUTTONS WIDGETS --------------------------------------------------------
-        # start button
-        start_button = QPushButton("Start")
-        start_button.setStyleSheet(style['button']['medium'])
-        start_button.setFixedHeight(100)
-        start_button.clicked.connect(self.start)
-
-        # pause button
-        pause_button = QPushButton("Pause")
-        pause_button.setStyleSheet(style['button']['medium'])
-        pause_button.setFixedHeight(100)
-        pause_button.clicked.connect(self.pause)
-
-        # finish button
-        stop_button = QPushButton("Finish")
-        stop_button.setStyleSheet(style['button']['medium'])
-        stop_button.setFixedHeight(100)
-        stop_button.clicked.connect(self.finish)
-
-        # LAYOUTS --------------------------------------------------------------
-        info_layout = QHBoxLayout()
-        info_layout.setContentsMargins(0, 0, 0, 0)
-        info_layout.setAlignment(Qt.AlignCenter)
-        info_layout.setSpacing(30)
-        info_layout.addWidget(self.start_frame)
-        info_layout.addWidget(self.quantity_frame)
-        info_layout.addWidget(self.defects_frame)
-        info_layout.addWidget(self.quality_frame)
-
         video_layout = QHBoxLayout()
         video_layout.setContentsMargins(0, 0, 0, 0)
         video_layout.setAlignment(Qt.AlignCenter)
         video_layout.addLayout(live_video_frame)
         video_layout.addLayout(last_image_frame)
+
+        # BUTTONS --------------------------------------------------------------
+        start_button = QPushButton("Start")
+        start_button.setStyleSheet(style['button']['medium'])
+        start_button.setFixedHeight(100)
+        start_button.clicked.connect(self.start)
+
+        pause_button = QPushButton("Pause")
+        pause_button.setStyleSheet(style['button']['medium'])
+        pause_button.setFixedHeight(100)
+        pause_button.clicked.connect(self.pause)
+
+        stop_button = QPushButton("Finish")
+        stop_button.setStyleSheet(style['button']['medium'])
+        stop_button.setFixedHeight(100)
+        stop_button.clicked.connect(self.finish)
 
         buttons_layout = QHBoxLayout()
         buttons_layout.setContentsMargins(0, 0, 0, 0)
@@ -120,18 +107,18 @@ class Session_View(QWidget):
         buttons_layout.addWidget(pause_button)
         buttons_layout.addWidget(stop_button)
 
+        # MAIN LAYOUT ----------------------------------------------------------
         main_layout = QVBoxLayout()
         main_layout.addLayout(info_layout)
         main_layout.addLayout(video_layout)
         main_layout.addLayout(buttons_layout)
-
         self.setLayout(main_layout)
 
     # for start button
     def start(self):
         self.image_capture_manager.start()
         self.timer.start(60)        # for update image
-        self.timer_db.start(6000)   # for update session and register on DB
+        self.timer_db.start(60000)  # for update session and register on DB
         if self.session_id is None:
             self.start_frame.update_value(QDateTime.currentDateTime().toString(
                 "HH:mm"
@@ -157,6 +144,7 @@ class Session_View(QWidget):
         self.update_db()
         self.total_quantity = 0
         self.total_defects = 0
+        self.total_last_count = 0
         self.session_id = None
 
         self.start_frame.update_value("--:--")
@@ -190,14 +178,21 @@ class Session_View(QWidget):
         self.total_quantity += quantity
         self.total_defects += defects
         self.image_capture_manager.reset_counts()
-        db_task = DatabaseTask(
-            self.session_id,
-            quantity,
-            defects,
-            self.total_quantity,
-            self.total_defects
-        )
-        self.threadpool.start(db_task)
+        if quantity == 0:  # No detections in the last minute
+            self.last_count += 1
+            self.total_last_count += 1
+        else:
+            db_task = DatabaseTask(
+                self.session_id,
+                quantity,
+                defects,
+                self.total_quantity,
+                self.total_defects,
+                self.last_count,
+                self.total_last_count
+            )
+            self.threadpool.start(db_task)  # start task on a separate thread
+            self.last_count = 0
 
     def closeEvent(self, event):
         self.image_capture_manager.release_camera()
@@ -205,13 +200,15 @@ class Session_View(QWidget):
 
 
 class DatabaseTask(QRunnable):
-    def __init__(self, session_id, quantity, defects, total_quantity, total_defects):
+    def __init__(self, session_id, quantity, defects, total_quantity, total_defects, time_diff, downtime_minutes):
         super().__init__()
         self.session_id = session_id
         self.quantity = quantity
         self.defects = defects
         self.total_quantity = total_quantity
         self.total_defects = total_defects
+        self.time_diff = time_diff
+        self.downtime_minutes = downtime_minutes
 
     def run(self):
         time_stamp = QDateTime.currentDateTime().toString("yyyy-MM-dd HH:mm:ss")
@@ -220,13 +217,14 @@ class DatabaseTask(QRunnable):
             self.session_id,
             end_time=time_stamp,
             quantity=self.total_quantity,
-            defects=self.total_defects
+            defects=self.total_defects,
+            downtime_minutes=self.downtime_minutes
         )
         count_register(
             time_stamp,
             self.session_id,
             self.quantity,
             self.defects,
-            0,
+            self.time_diff,
             'MINUTES'
         )
