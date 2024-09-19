@@ -1,10 +1,11 @@
-from PySide6.QtWidgets import QLabel, QWidget, QVBoxLayout, QHBoxLayout, QPushButton
+from PySide6.QtWidgets import QLabel, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QMessageBox
 from PySide6.QtCore import Qt, QTimer, QDateTime, QRunnable, QThreadPool
 from PySide6.QtGui import QPixmap
 
 from processing.image_processor import ImageCaptureManager
 from db.sessions.dao import session_register, session_update
 from db.counts.dao import count_register
+from db.logs.dao import log_register
 from gui.components.info_widget import InfoWidget
 from config.config import load_config, load_styles
 config = load_config()
@@ -16,6 +17,7 @@ class Session_View(QWidget):
         super().__init__()
         self.main_window = main_window
         self.setWindowTitle('KONECTO')
+        self.start_pause_button_text = 'Start'
         self.init_ui()
         self.image_capture_manager = ImageCaptureManager()
         self.total_quantity = 0
@@ -84,27 +86,22 @@ class Session_View(QWidget):
         video_layout.addLayout(last_image_frame)
 
         # BUTTONS --------------------------------------------------------------
-        start_button = QPushButton("Start")
-        start_button.setStyleSheet(style['button']['medium'])
-        start_button.setFixedHeight(100)
-        start_button.clicked.connect(self.start)
-
-        pause_button = QPushButton("Pause")
-        pause_button.setStyleSheet(style['button']['medium'])
-        pause_button.setFixedHeight(100)
-        pause_button.clicked.connect(self.pause)
+        self.start_button = QPushButton(self.start_pause_button_text)
+        self.start_button.setStyleSheet(style['button']['medium'])
+        self.start_button.setFixedHeight(100)
+        self.start_button.clicked.connect(self.start)
 
         stop_button = QPushButton("Finish")
-        stop_button.setStyleSheet(style['button']['medium'])
+        stop_button.setStyleSheet(
+            style['button']['medium'] + 'background-color: red;')
         stop_button.setFixedHeight(100)
-        stop_button.clicked.connect(self.finish)
+        stop_button.clicked.connect(self.confirm_finish)
 
         buttons_layout = QHBoxLayout()
         buttons_layout.setContentsMargins(0, 0, 0, 0)
         buttons_layout.setAlignment(Qt.AlignCenter)
         buttons_layout.setSpacing(30)
-        buttons_layout.addWidget(start_button)
-        buttons_layout.addWidget(pause_button)
+        buttons_layout.addWidget(self.start_button)
         buttons_layout.addWidget(stop_button)
 
         # MAIN LAYOUT ----------------------------------------------------------
@@ -116,27 +113,72 @@ class Session_View(QWidget):
 
     # for start button
     def start(self):
-        self.image_capture_manager.start()
-        self.timer.start(60)        # for update image
-        self.timer_db.start(60000)  # for update session and register on DB
-        if self.session_id is None:
-            self.start_frame.update_value(QDateTime.currentDateTime().toString(
-                "HH:mm"
-            ))
-            self.session_id = session_register(
-                config['line_id'], self.main_window.batch_id, QDateTime.currentDateTime(
-                ).toString("yyyy-MM-dd HH:mm:ss"),
+        if self.start_pause_button_text == 'Start' or self.start_pause_button_text == 'Resume':
+            self.image_capture_manager.start()
+            self.timer.start(60)        # for update image
+            self.timer_db.start(60000)  # for update session and register on DB
+            if self.session_id is None:  # first time click start button
+                self.start_frame.update_value(QDateTime.currentDateTime().toString(
+                    "HH:mm"
+                ))
+                self.session_id = session_register(
+                    config['line_id'], self.main_window.batch_id, QDateTime.currentDateTime(
+                    ).toString("yyyy-MM-dd HH:mm:ss"),
+                )
+                self.quality_frame.update_value("100%")
+                log_register(
+                    self.session_id,
+                    self.main_window.user['id'],
+                    self.main_window.user['fullname'],
+                    QDateTime.currentDateTime().toString("yyyy-MM-dd HH:mm:ss"),
+                    f'Start session {self.main_window.batch}'
+                )
+            else:  # for resume
+                log_register(
+                    self.session_id,
+                    self.main_window.user['id'],
+                    self.main_window.user['fullname'],
+                    QDateTime.currentDateTime().toString("yyyy-MM-dd HH:mm:ss"),
+                    f'Resume session {self.main_window.batch}'
+                )
+            self.start_pause_button_text = 'Pause'
+            self.start_button.setText(self.start_pause_button_text)
+        else:  # for pause
+            self.image_capture_manager.stop()
+            self.timer.stop()
+            self.timer_db.stop()
+            self.start_pause_button_text = 'Resume'
+            self.start_button.setText(self.start_pause_button_text)
+            log_register(
+                self.session_id,
+                self.main_window.user['id'],
+                self.main_window.user['fullname'],
+                QDateTime.currentDateTime().toString("yyyy-MM-dd HH:mm:ss"),
+                f'Pause session {self.main_window.batch}'
             )
-            self.quality_frame.update_value("100%")
 
-    # for pause button
-    def pause(self):
-        self.image_capture_manager.stop()
-        self.timer.stop()
-        self.timer_db.stop()
+    # confirm finish session
+    def confirm_finish(self):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Question)
+        msg.setText("Are you sure you want to finish this session?")
+        msg.setWindowTitle("Finish Session")
+        msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+        if msg.exec_() == QMessageBox.Yes:
+            self.finish()
+        else:
+            pass
 
     # for finish button
     def finish(self):
+        log_register(
+            self.session_id,
+            self.main_window.user['id'],
+            self.main_window.user['fullname'],
+            QDateTime.currentDateTime().toString("yyyy-MM-dd HH:mm:ss"),
+            f'Finish session {self.main_window.batch}'
+        )
+
         self.image_capture_manager.stop()
         self.timer.stop()
         self.timer_db.stop()
@@ -146,6 +188,8 @@ class Session_View(QWidget):
         self.total_defects = 0
         self.total_last_count = 0
         self.session_id = None
+        self.start_pause_button_text = 'Start'
+        self.start_button.setText('Start')
 
         self.start_frame.update_value("--:--")
         self.quantity_frame.update_value("--")

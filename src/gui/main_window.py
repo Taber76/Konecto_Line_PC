@@ -1,11 +1,11 @@
 from PySide6.QtWidgets import QMainWindow, QStackedWidget, QWidget, QVBoxLayout
 from matplotlib import style
 
-from .components.header import HeaderWidget
-from .components.footer import FooterWidget
-from .views.login import Login_View
-from .views.home import Home_View
-from .views.session import Session_View
+from gui.components.header import HeaderWidget
+from gui.components.footer import FooterWidget
+from gui.views.login import Login_View
+from gui.views.home import Home_View
+from gui.views.session import Session_View
 
 from config.config import load_config, load_styles
 config = load_config()

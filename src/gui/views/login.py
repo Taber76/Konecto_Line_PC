@@ -79,6 +79,7 @@ class Login_View(QWidget):
             self.username_input_widget.setText("")
             self.password_input_widget.setText("")
             self.main_window.user['fullname'] = user_data.fullname
+            self.main_window.user['id'] = user_data.id
             self.main_window.change_view("home")
         else:
             QMessageBox.warning(self, "Login Error",
