@@ -6,6 +6,7 @@ from gui.components.footer import FooterWidget
 from gui.views.login import Login_View
 from gui.views.home import Home_View
 from gui.views.session import Session_View
+from db.batches.dao import get_all_batches
 
 from config.config import load_config, load_styles
 config = load_config()
@@ -25,6 +26,7 @@ class MainWindow(QMainWindow):
         self.product = ""
         self.batch = ""
         self.batch_id = None
+        self.bacth_list = get_all_batches()
         self.user = {"id": None, "fullname": None, "role": None}
 
         central_widget = QWidget()
@@ -65,6 +67,8 @@ class MainWindow(QMainWindow):
             self.views[view_name] = view
 
         # Change the current widget in the stacked widget
+        if view_name == 'home':
+            self.bacth_list = get_all_batches()
         self.stacked_widget.setCurrentWidget(self.views[view_name])
 
         # Update the header

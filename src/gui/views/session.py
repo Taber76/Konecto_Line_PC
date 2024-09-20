@@ -3,6 +3,7 @@ from PySide6.QtCore import Qt, QTimer, QDateTime, QRunnable, QThreadPool
 from PySide6.QtGui import QPixmap
 
 from processing.image_processor import ImageCaptureManager
+from db.batches.dao import batch_update
 from db.sessions.dao import session_register, session_update
 from db.counts.dao import count_register
 from db.logs.dao import log_register
@@ -30,7 +31,7 @@ class Session_View(QWidget):
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_image)
 
-        # Timer to update session and register counts
+        # Timer to update batch, session and register counts
         self.timer_db = QTimer()
         self.timer_db.timeout.connect(self.update_db)
         self.last_count = 0
@@ -117,6 +118,8 @@ class Session_View(QWidget):
             self.image_capture_manager.start()
             self.timer.start(60)        # for update image
             self.timer_db.start(60000)  # for update session and register on DB
+            self.start_pause_button_text = 'Pause'
+            self.start_button.setText(self.start_pause_button_text)
             if self.session_id is None:  # first time click start button
                 self.start_frame.update_value(QDateTime.currentDateTime().toString(
                     "HH:mm"
@@ -141,14 +144,12 @@ class Session_View(QWidget):
                     QDateTime.currentDateTime().toString("yyyy-MM-dd HH:mm:ss"),
                     f'Resume session {self.main_window.batch}'
                 )
-            self.start_pause_button_text = 'Pause'
-            self.start_button.setText(self.start_pause_button_text)
         else:  # for pause
+            self.start_pause_button_text = 'Resume'
+            self.start_button.setText(self.start_pause_button_text)
             self.image_capture_manager.stop()
             self.timer.stop()
             self.timer_db.stop()
-            self.start_pause_button_text = 'Resume'
-            self.start_button.setText(self.start_pause_button_text)
             log_register(
                 self.session_id,
                 self.main_window.user['id'],
@@ -227,6 +228,7 @@ class Session_View(QWidget):
             self.total_last_count += 1
         else:
             db_task = DatabaseTask(
+                self.main_window.batch_id,
                 self.session_id,
                 quantity,
                 defects,
@@ -244,8 +246,9 @@ class Session_View(QWidget):
 
 
 class DatabaseTask(QRunnable):
-    def __init__(self, session_id, quantity, defects, total_quantity, total_defects, time_diff, downtime_minutes):
+    def __init__(self, batch_id, session_id, quantity, defects, total_quantity, total_defects, time_diff, downtime_minutes):
         super().__init__()
+        self.batch_id = batch_id
         self.session_id = session_id
         self.quantity = quantity
         self.defects = defects
@@ -255,20 +258,30 @@ class DatabaseTask(QRunnable):
         self.downtime_minutes = downtime_minutes
 
     def run(self):
-        time_stamp = QDateTime.currentDateTime().toString("yyyy-MM-dd HH:mm:ss")
+        try:
+            timestamp = QDateTime.currentDateTime().toString("yyyy-MM-dd HH:mm:ss")
 
-        session_update(
-            self.session_id,
-            end_time=time_stamp,
-            quantity=self.total_quantity,
-            defects=self.total_defects,
-            downtime_minutes=self.downtime_minutes
-        )
-        count_register(
-            time_stamp,
-            self.session_id,
-            self.quantity,
-            self.defects,
-            self.time_diff,
-            'MINUTES'
-        )
+            batch_update(
+                self.batch_id,
+                self.quantity,
+                self.defects,
+                self.downtime_minutes,
+                timestamp
+            )
+            session_update(
+                self.session_id,
+                end_time=timestamp,
+                quantity=self.total_quantity,
+                defects=self.total_defects,
+                downtime_minutes=self.downtime_minutes
+            )
+            count_register(
+                timestamp,
+                self.session_id,
+                self.quantity,
+                self.defects,
+                self.time_diff,
+                'MINUTES'
+            )
+        except Exception as e:
+            print(f"An error occurred: {e}")

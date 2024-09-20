@@ -23,7 +23,7 @@ class CountInterval:
 class Count(Model):
     id = UUIDField(primary_key=True)
     session_id = CharField(max_length=255)
-    time_stamp = DateTimeField()
+    timestamp = DateTimeField()
     quantity = IntegerField()
     defects = IntegerField()
     time_diff = IntegerField()

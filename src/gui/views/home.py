@@ -2,7 +2,7 @@ from PySide6.QtWidgets import QLabel, QWidget, QVBoxLayout, QHBoxLayout, QTableV
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QStandardItemModel, QStandardItem
 
-from db.batches.dao import get_all
+from db.batches.dao import get_all_batches
 from config.config import load_styles
 style = load_styles()
 
@@ -11,7 +11,7 @@ class Home_View(QWidget):
     def __init__(self, main_window):
         super().__init__()
         self.main_window = main_window
-        self.items = get_all()
+        self.items = main_window.bacth_list
         self.init_ui()
 
     def init_ui(self):

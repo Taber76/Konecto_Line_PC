@@ -4,11 +4,11 @@ from db.conection import DbConnection
 from db.counts.model import Count
 
 
-def count_register(time_stamp, session_id, quantity, defects, time_diff, interval):
+def count_register(timestamp, session_id, quantity, defects, time_diff, interval):
     try:
         with DbConnection().db.connection_context():
             return Count.create(
-                time_stamp=time_stamp,
+                timestamp=timestamp,
                 session_id=session_id,
                 quantity=quantity,
                 defects=defects,
