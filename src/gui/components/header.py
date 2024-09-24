@@ -17,8 +17,7 @@ class HeaderWidget(QWidget):
         main_layout = QVBoxLayout()
         self.setLayout(main_layout)
         self.setStyleSheet(
-            f"background-color: {style
-                                 ['header']['background_color']};"
+            f"background-color: {style['header']['background_color']};"
             f"font-family: {style['header']['font']};"
             f"font-weight: {style['header']['font-weight']};"
             f"color: {style['header']['text_color']};"
@@ -46,15 +45,13 @@ class HeaderWidget(QWidget):
         header_layout.addWidget(self.date_time_label)
 
         # Product name / Batch code
-        self.product_label = QLabel(f"{self.main_window.product}{
-                                    self.main_window.batch}")
+        self.product_label = QLabel(f"{self.main_window.product}{self.main_window.batch}")
         self.product_label.setStyleSheet(
             f"padding: {style['header']['padding']};"
             f"font-size: {int(style['header']['font-size']*1.5)}px;"
         )
         self.product_label.setFixedWidth(int(config['screen']['width'] * 0.7))
-        self.product_label.setFixedHeight(
-            int(config['screen']['height'] * 0.07))
+        self.product_label.setFixedHeight(int(config['screen']['height'] * 0.07))
         self.product_label.setAlignment(Qt.AlignCenter)
         header_layout.addWidget(self.product_label)
 
@@ -88,8 +85,7 @@ class HeaderWidget(QWidget):
 
     def update_info(self):
         self.logged_user.setText(self.main_window.user['fullname'])
-        self.product_label.setText(f"{self.main_window.product}{
-                                   self.main_window.batch}")
+        self.product_label.setText(f"{self.main_window.product}{self.main_window.batch}")
 
     def logout(self):
         self.main_window.user = {"id": None, "fullname": None, "role": None}

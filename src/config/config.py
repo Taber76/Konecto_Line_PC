@@ -7,7 +7,7 @@ DEFAULT_CONFIG = {
         "height": 768
     },
     "camera": {
-        "source": 0,
+        "source": "0",
         "fps": 10,
         "resolution": (320, 240),
         "format": "YUYV"

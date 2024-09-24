@@ -6,3 +6,6 @@ ultralytics
 deep-sort-realtime
 psycopg2-binary
 python-dotenv
+
+
+ /home/usuario/Escritorio/KONECTO/.venv/bin/python /home/usuario/Escritorio/KONECTO/src/__main__.py
