@@ -6,7 +6,7 @@ from db.logs.model import Log
 
 def log_register(session_id, user_id, username, timestamp, description):
     try:
-        with DbConnection().db.connection_context():
+        with DbConnection('cloud').db.connection_context():
             return Log.create(
                 session_id=session_id,
                 user_id=user_id,

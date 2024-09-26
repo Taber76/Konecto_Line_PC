@@ -1,37 +1,36 @@
-from PySide6.QtWidgets import QLabel, QWidget, QVBoxLayout, QPushButton
+from PySide6.QtWidgets import QLabel, QWidget, QVBoxLayout, QPushButton, QHBoxLayout
 from PySide6.QtCore import Qt
 
-from gui.components.keyboard import OnScreenKeyboard
-
+from config.config import load_config, load_styles
+config = load_config()
+style = load_styles()
 
 class FooterWidget(QWidget):
-    def __init__(self):
+    def __init__(self, main_window):
         super().__init__()
+        self.main_window = main_window
         self.init_ui()
 
     def init_ui(self):
-        layout = QVBoxLayout()
-        self.setLayout(layout)
 
-        self.label = QLabel("Este es el Footer")
-        self.label.setStyleSheet(
-            "background-color: lightgray; font-size: 14px; padding: 10px;")
-        self.label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(self.label)
+        # CLOUD CONECTION LIGHT ------------------------------------------------
+        
 
-        # Botón para mostrar/ocultar el teclado
-        # self.toggle_keyboard_button = QPushButton("Mostrar Teclado")
-        # self.toggle_keyboard_button.clicked.connect(self.toggle_keyboard)
-        # layout.addWidget(self.toggle_keyboard_button)
+        # MAIN LAYOUT ------------------------------------------------------------
+        horizontal_layout = QHBoxLayout()
+        horizontal_layout.setAlignment(Qt.AlignCenter)
 
-        # Crear la instancia del teclado pero mantenerlo oculto inicialmente
-        # self.keyboard = OnScreenKeyboard()
-        # self.keyboard.hide()
-
-    def toggle_keyboard(self):
-        if self.keyboard.isVisible():
-            self.keyboard.hide()
-            self.toggle_keyboard_button.setText("Mostrar Teclado")
-        else:
-            self.keyboard.show()
-            self.toggle_keyboard_button.setText("Ocultar Teclado")
+        # Main layout
+        main_vertical_layout = QVBoxLayout()
+        main_vertical_layout.setAlignment(Qt.AlignCenter)
+        main_vertical_layout.addLayout(horizontal_layout)
+        self.setLayout(main_vertical_layout)
+        self.setStyleSheet(
+            f"background-color: {style['header']['background_color']};"
+            f"font-family: {style['header']['font']};"
+            f"font-weight: {style['header']['font-weight']};"
+            f"color: {style['header']['text_color']};"
+        )
+        self.setFixedWidth(config['screen']['width'])
+        self.setFixedHeight(int(config['screen']['height'] * 0.08))
+   

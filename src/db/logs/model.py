@@ -11,5 +11,5 @@ class Log(Model):
     description = CharField(max_length=255)
 
     class Meta:
-        database = DbConnection().db
+        database = DbConnection('cloud').db
         table_name = 'logs'

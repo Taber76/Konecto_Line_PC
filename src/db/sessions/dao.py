@@ -6,7 +6,7 @@ from db.sessions.model import Session
 
 def session_register(line_id, batch_id, start_time):
     try:
-        with DbConnection().db.connection_context():
+        with DbConnection('cloud').db.connection_context():
             return Session.create(
                 line_id=line_id,
                 batch_id=batch_id,
@@ -22,7 +22,7 @@ def session_register(line_id, batch_id, start_time):
 
 def session_update(id, end_time=None, quantity=None, defects=None, downtime_minutes=None):
     try:
-        with DbConnection().db.connection_context():
+        with DbConnection('cloud').db.connection_context():
             session = Session.get(Session.id == id)
 
             if end_time is not None:

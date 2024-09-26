@@ -28,6 +28,8 @@ class MainWindow(QMainWindow):
         self.batch_id = None
         self.bacth_list = get_all_batches()
         self.user = {"id": None, "fullname": None, "role": None}
+        self.cloud_db = False
+        self.local_db = False
 
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -41,7 +43,7 @@ class MainWindow(QMainWindow):
         self.stacked_widget = QStackedWidget()
         layout.addWidget(self.stacked_widget)
         # Footer
-        self.footer = FooterWidget()
+        self.footer = FooterWidget(self)
         layout.addWidget(self.footer)
 
         # Views dictionary

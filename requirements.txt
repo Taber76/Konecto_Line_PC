@@ -8,4 +8,23 @@ psycopg2-binary
 python-dotenv
 
 
- /home/usuario/Escritorio/KONECTO/.venv/bin/python /home/usuario/Escritorio/KONECTO/src/__main__.py
+/home/usuario/Escritorio/KONECTO/.venv/bin/python /home/usuario/Escritorio/KONECTO/src/__main__.py
+
+
+create posgreSQL
+Instalacion
+- sudo apt install postgresql postgresql-contrib
+Arranque servicio
+- sudo systemctl start postgresql
+- sudo systemctl enable postgresql
+Acceso consola
+- sudo -i -u postgres
+- psql
+Crear base de datos
+-CREATE DATABASE nombre_de_la_base_de_datos;
+Crear usuario
+-CREATE USER nombre_de_usuario WITH PASSWORD 'tu_contraseña';
+Dar privielgios al usuario
+-GRANT ALL PRIVILEGES ON DATABASE nombre_de_la_base_de_datos TO nombre_de_usuario;
+Salir de la consola
+- \q

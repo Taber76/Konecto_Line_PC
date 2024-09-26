@@ -6,7 +6,7 @@ from db.batches.model import Batch, Batch_Detail
 
 def get_all_batches():
     try:
-        with DbConnection().db.connection_context():
+        with DbConnection('cloud').db.connection_context():
             return list(Batch_Detail.select())
     except DoesNotExist:
         print(f"Batch does not exist.")
@@ -18,7 +18,7 @@ def get_all_batches():
 
 def batch_update(id, quantity, defects, downtime_minutes, updated_at):
     try:
-        with DbConnection().db.connection_context():
+        with DbConnection('cloud').db.connection_context():
             batch = Batch.get(Batch.id == id)
             batch.total_produced = batch.total_produced + quantity
             batch.total_defects = batch.total_defects + defects

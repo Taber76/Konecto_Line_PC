@@ -6,7 +6,7 @@ from db.counts.model import Count
 
 def count_register(timestamp, session_id, quantity, defects, time_diff, interval):
     try:
-        with DbConnection().db.connection_context():
+        with DbConnection('cloud').db.connection_context():
             return Count.create(
                 timestamp=timestamp,
                 session_id=session_id,

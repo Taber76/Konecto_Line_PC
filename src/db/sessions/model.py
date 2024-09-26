@@ -13,5 +13,5 @@ class Session(Model):
     downtime_minutes = IntegerField()
 
     class Meta:
-        database = DbConnection().db
+        database = DbConnection('cloud').db
         table_name = 'sessions'

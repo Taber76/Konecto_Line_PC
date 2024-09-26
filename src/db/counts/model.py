@@ -30,5 +30,5 @@ class Count(Model):
     interval = CharField(choices=CountInterval.CHOICES)
 
     class Meta:
-        database = DbConnection().db
+        database = DbConnection('cloud').db
         table_name = 'counts'

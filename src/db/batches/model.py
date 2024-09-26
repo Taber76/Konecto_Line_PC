@@ -14,7 +14,7 @@ class Batch_Detail(Model):
     updated_at = DateTimeField()
 
     class Meta:
-        database = DbConnection().db
+        database = DbConnection('cloud').db
         table_name = 'batchs_detail'  # 'batches_detail' is a view
         primary_key = False
 
@@ -30,6 +30,6 @@ class Batch(Model):
     active = BooleanField()
 
     class Meta:
-        database = DbConnection().db
+        database = DbConnection('cloud').db
         table_name = 'batchs'
         primary_key = False

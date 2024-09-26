@@ -7,7 +7,7 @@ from db.users.model import User
 
 def authenticate(username, password):
     try:
-        with DbConnection().db.connection_context():
+        with DbConnection('cloud').db.connection_context():
             user = User.get(User.username == username)
             if bcrypt.checkpw(password.encode(), user.password.encode()):
                 return True, user

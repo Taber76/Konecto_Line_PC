@@ -1,6 +1,8 @@
+from re import L
 from dotenv import load_dotenv
 import os
 
 load_dotenv()
 
-DATABASE_URL = os.getenv('DATABASE_URL')
+CLOUD_DATABASE = os.getenv('CLOUD_DATABASE')
+LOCAL_DATABASE = os.getenv('LOCAL_DATABASE')
