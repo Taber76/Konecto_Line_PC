@@ -9,6 +9,7 @@ from gui.views.session import Session_View
 from db.batches.dao import get_all_batches
 
 from config.config import load_config, load_styles
+from db.conection import DbConnection
 config = load_config()
 style = load_styles()
 
@@ -28,8 +29,8 @@ class MainWindow(QMainWindow):
         self.batch_id = None
         self.bacth_list = get_all_batches()
         self.user = {"id": None, "fullname": None, "role": None}
-        self.cloud_db = False
-        self.local_db = False
+        self.cloud_db = "red"
+        self.local_db = "red"
 
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -54,6 +55,9 @@ class MainWindow(QMainWindow):
         self.stacked_widget.addWidget(self.login)
         self.views['login'] = self.login
         self.change_view('login')
+
+        # Check database connection
+        self.check_db_connection()
 
     def change_view(self, view_name):
         if view_name not in self.views:
@@ -80,3 +84,13 @@ class MainWindow(QMainWindow):
     def logout(self):
         self.user = {'id': None, 'fullname': None, 'role': None}
         self.change_view('login')
+
+    def check_db_connection(self):
+        DbConnection("cloud").connect()
+        DbConnection("local").connect()
+        if DbConnection("cloud").is_connected():
+            self.cloud_db = 'green'
+            self.footer.update_cloud_light("green")
+        if DbConnection("local").is_connected():
+            self.local_db = 'green'
+            self.footer.update_local_light("green")
